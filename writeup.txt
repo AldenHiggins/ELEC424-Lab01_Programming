@@ -1,0 +1,94 @@
+John Alden Higgins
+Comp 424 Lab 1 Writeup
+9/6/2014
+
+Q1: The arguments were a+x,a-rw,u+rw,g+r
+
+Q2: path: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games: No such file or directory
+contents of the directory containing link:
+total 4
+-rwxr-x--x 2 ompl ompl 1985 Sep  7 01:51 justifytext
+
+Q3:
+29: if(args != 2){
+	cmpl   $0x2,-0x14(%rbp)
+	je     0x4006e6 <main+66>  
+35: if(atoi(argv[1]) < 0 || atoi(argv[1]) > 255){
+	mov    -0x20(%rbp),%rax  
+	add    $0x8,%rax
+	mov    (%rax),%rax
+	mov    %rax,%rdi
+	callq  0x400550 <atoi@plt> 
+	test   %eax,%eax 
+	js     0x400717 <main+115>  
+	mov    -0x20(%rbp),%rax  
+	add    $0x8,%rax  
+	mov    (%rax),%rax 
+	mov    %rax,%rdi  
+	callq  0x400550 <atoi@plt>
+	cmp    $0xff,%eax  
+	jle    0x400728 <main+132>  
+39: unsigned char a = (unsigned char)atoi(argv[1]);
+	mov    -0x20(%rbp),%rax 
+	add    $0x8,%rax 
+	mov    (%rax),%rax 
+	mov    %rax,%rdi  
+	callq  0x400550 <atoi@plt> 
+	mov    %al,-0x1(%rbp) 
+	movzbl -0x1(%rbp),%eax  
+	mov    %eax,%edi 
+40: printf("result of operation on value %d is %d \n", a, operation(a));
+	callq  0x40067b <operation> 
+	push   %rbp 
+	mov    %rsp,%rbp  
+	sub    $0x10,%rsp
+	mov    %edi,%eax 
+	mov    %edi,%eax 
+	movzbl %al,%edx 
+	movzbl -0x1(%rbp),%eax
+	mov    %eax,%esi
+	mov    $0x4008a0,%edi 
+	mov    $0x0,%eax
+	callq  0x400510 <printf@plt>
+17: a = a >> 1;
+	shrb   -0x4(%rbp) 
+19: a = a & 0x0f;
+	andb   $0xf,-0x4(%rbp)
+21: a = a << 4;
+	shlb   $0x4,-0x4(%rbp)  
+22: CHECK(a);
+	movzbl -0x4(%rbp),%eax 
+	mov    %eax,%edi 
+	callq  0x40064d <CHECK> 
+	push   %rbp	
+	mov    %rsp,%rbp 
+	sub    $0x20,%rsp 
+	mov    %edi,%eax 
+	mov    %al,-0x14(%rbp) 
+7:  if(a > 128){}
+	cmpb   $0x80,-0x14(%rbp) 
+	jbe    0x400679 <CHECK+44> 
+	leaveq 
+	retq 
+23: return a
+	movzbl -0x4(%rbp),%eax
+	leaveq   
+41: return 0
+	mov    $0x0,%eax  
+	leaveq
+
+Q4: The bug occurs when the result of the operation is greater than 128 and the line:
+	x[0] = 'E';
+or in assembly:
+	mov    -0x8(%rbp),%rax
+	movb   $0x45,(%rax)
+is run.
+
+Q5: This bug can be solved by changing the way you allocate the memory for the string, you can use an array:
+	char x[] = "error or not?";
+	x[0] = 'E';
+or you can malloc space for the string and set it with strcpy
+	char *x = malloc(sizeof(char) * 14);
+	strcpy(x,"error or not?");
+	x[0] = 'E';
+ 
